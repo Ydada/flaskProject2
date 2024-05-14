@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>虚拟机概况</title>
+</head>
+<body>
+<div style="padding: 2px">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <table
+                    class="layui-hide"
+                    id="ledger-table"
+                    lay-filter="ledger-table"
+            ></table>
+        </div>
+    </div>
+</div>
+<form
+        class="layui-form layui-form-pane layui-btn-sm"
+        lay-filter="ledger-form"
+        id="ledger-form"
+        action=""
+        style="padding: 15px; display: none"
+>
+    <div class="layui-form-item layui-hide">
+        <label class="layui-form-label">ID</label>
+        <div class="layui-input-inline layui-input-wrap">
+            <input
+                    type="text"
+                    name="id"
+                    value="0"
+                    lay-verify="required"
+                    autocomplete="off"
+                    class="layui-input"
+                    disabled
+            />
+        </div>
+    </div>
+    <div class="layui-form-item layui-col-md9">
+        <label class="layui-form-label">主机名</label>
+        <div class="layui-input-block">
+            <input
+                    type="text"
+                    name="hostname"
+                    placeholder="请输入主机名"
+                    lay-verify="required"
+                    autocomplete="off"
+                    class="layui-input"
+            />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">综合网IP</label>
+        <div class="layui-input-inline layui-input-wrap">
+            <input
+                    type="text"
+                    name="ip1"
+                    placeholder="请输入综合网IP地址"
+                    lay-verify="ip"
+                    autocomplete="off"
+                    class="layui-input"
+            />
+        </div>
+        <label class="layui-form-label">数据网IP</label>
+        <div class="layui-input-inline layui-input-wrap">
+            <input
+                    type="text"
+                    name="ip2"
+                    placeholder="请输入数据网IP地址"
+                    lay-verify="required|ip"
+                    autocomplete="off"
+                    class="layui-input"
+            />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">存储网IP</label>
+        <div class="layui-input-inline layui-input-wrap">
+            <input
+                    type="text"
+                    name="ip3"
+                    placeholder="请输入存储网IP地址"
+                    lay-verify="required|ip"
+                    autocomplete="off"
+                    class="layui-input"
+            />
+        </div>
+        <label class="layui-form-label">其他IP</label>
+        <div class="layui-input-inline layui-input-wrap">
+            <input
+                    type="text"
+                    name="ip4"
+                    placeholder="请输入其他IP地址"
+                    lay-verify="required|ip"
+                    autocomplete="off"
+                    class="layui-input"
+            />
+        </div>
+    </div>
+    <div class="layui-form-item layui-col-md9">
+        <label class="layui-form-label">应用服务名</label>
+        <div class="layui-input-block">
+            <input
+                    type="text"
+                    name="app_name"
+                    placeholder="请输入应用服务名"
+                    lay-verify="required"
+                    autocomplete="off"
+                    class="layui-input"
+            />
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">厂商</label>
+        <div class="layui-input-inline layui-input-wrap">
+            <input
+                    type="text"
+                    name="app_vendors"
+                    placeholder="请输入厂商"
+                    lay-verify="required"
+                    autocomplete="off"
+                    class="layui-input"
+            />
+        </div>
+        <label class="layui-form-label">负责人</label>
+        <div class="layui-input-inline layui-input-wrap">
+            <input
+                    type="text"
+                    name="app_owner"
+                    placeholder="请输入负责人"
+                    lay-verify="required"
+                    autocomplete="off"
+                    class="layui-input"
+            />
+        </div>
+    </div>
+    <div class="layui-form-item layui-col-md9">
+        <label class="layui-form-label">业务内容</label>
+        <div class="layui-input-block">
+            <input
+                    type="text"
+                    name="app_dest"
+                    placeholder="请输入业务内容"
+                    lay-verify="required"
+                    autocomplete="off"
+                    class="layui-input"
+            />
+        </div>
+    </div>
+
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">备注</label>
+        <div class="layui-input-block">
+            <textarea
+                    type="text"
+                    placeholder="请输入内容"
+                    class="layui-textarea"
+                    name="remark"
+            ></textarea>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">创建时间</label>
+        <div class="layui-input-inline layui-input-wrap">
+            <input
+                    type="text"
+                    name="create_at"
+                    class="layui-input"
+                    id="form_create_at"
+                    placeholder="yyyy-MM-dd HH:mm:ss"
+                    autocomplete="off"
+                    lay-verify="required"
+            />
+        </div>
+    </div>
+    <div class="layui-form-item  layui-col-md-offset3">
+        <div class="layui-input-block">
+            <button
+                    type="submit"
+                    class="layui-btn"
+                    lay-submit
+                    lay-filter="ledger-form-btn"
+            >
+                确定
+            </button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+<script type="text/html" id="ledger-toolbar">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm" lay-event="ledger-toolbar-add">
+            新增
+        </button>
+        <button class="layui-btn layui-btn-sm" lay-event="ledger-toolbar-edit">
+            编辑
+        </button>
+        <button class="layui-btn layui-btn-sm" lay-event="ledger-toolbar-del">
+            删除
+        </button>
+        <button class="layui-btn layui-btn-sm" lay-event="ledger-toolbar-del">
+            删除
+        </button>
+    </div>
+</script>
+<script type="text/html" id="ledger-tool">
+    <div class="layui-btn-container">
+        <button
+                class="layui-btn layui-btn-xs layui-bg-blue"
+                lay-event="ledger-tool-edit"
+        >
+            编辑
+        </button>
+        <button
+                class="layui-btn layui-btn-xs layui-bg-red"
+                lay-event="ledger-tool-del"
+        >
+            删除
+        </button>
+    </div>
+</script>
+<script>
+    layui.use(function () {
+        var table = layui.table;
+        var $ = layui.$;
+        var form = layui.form;
+        var laydate = layui.laydate;
+
+        let user_id = -1;
+
+        table.render({
+            elem: "#ledger-table",
+            id: "ledger-table",
+            url: "/api/v1/ledger", // 此处为静态模拟数据，实际使用时需换成真实接口
+            height: "full-90", // 最大高度减去其他容器已占有的高度差
+            toolbar: "#ledger-toolbar",
+            size: "sm",
+            defaultToolbar: ['filter', {
+                title: '导出xlsx',
+                layEvent: 'uploadsfile',
+                icon: 'layui-icon-export'
+            }, 'print'],
+            page: true,
+            cols: [
+                [
+                    //标题栏
+                    {type: 'checkbox', fixed: 'left', width: 30},
+                    {field: "id", title: "ID", width: 80, sort: true, hide: true, fixed: 'left'},
+                    {field: "nus", title: "序号", width: 45, type: "numbers", fixed: "left", align: "center"},
+                    {field: "hostname", title: "主机名", width: 120, sort: true, fixed: "left", align: "center"},
+                    {field: "ip1", title: "综合网IP地址", width: 120, sort: true, align: "center"},
+                    {field: "ip2", title: "数据网IP地址", width: 160, sort: true, align: "center"},
+                    {field: "ip3", title: "存储网IP地址", width: 160, sort: true, align: "center"},
+                    {field: "ip4", title: "其他IP地址", width: 160, align: "center"},
+                    {field: "app_name", title: "应用服务名", width: 160, align: "center"},
+                    {field: "app_vendors", title: "厂商", width: 160, sort: true, align: "center"},
+                    {field: "app_owner", title: "负责人", width: 160, sort: true, align: "center"},
+                    {field: "app_dest", title: "业务内容", width: 160, align: "center"},
+                    {field: "remark", title: "备注", width: 160, align: "center"},
+                    {field: "create_at", title: "创建时间", width: 180, sort: true, align: "center"},
+                    {
+                        fixed: "right",
+                        title: "操作",
+                        width: 120,
+                        align: "center",
+                        toolbar: "#ledger-tool",
+                    },
+                ],
+            ],
+        });
+
+        table.on("toolbar(ledger-table)", function (obj) {
+            if (obj.event === "ledger-toolbar-add") {
+                $("#ledger-form")[0].reset();
+                layer.open({
+                    type: 1,
+                    shade: false,
+                    content: $("#ledger-form"),
+                    area: ["60%", "80%"],
+                });
+                form.render($("#ledger-form"));
+            } else if (obj.event === "uploadsfile") {
+                $.ajax({
+
+                    type: "get",
+                    url: '/api/v1/user',
+                    dataType: "json",
+                    success: function (res) {
+                        console.log("Error:", res);
+                        if (res.code == 0) {
+                            /* layer.msg('默认模板说明下载到桌面成功',{icon:6,time:1000},function(){
+                               //刷新本页面
+                           //location.reload();
+                             }); */
+                            //导出文档流程思路：应该是先导出到服务器内部，然后再通过访问链接的形式下载导出的文档
+                            layer.confirm('请问是否确定下载？', {
+                                btn: ['下载', '取消'] //可以无限个按钮
+                            }, function (index, layero) {
+                                //res.fileUrl路径
+                                window.location.href = "http://localhost:5000/api/v1/file";
+                                //点击按钮下载服务器内的文本
+                                // window.location.href="域名"+"文件的路径";
+                                //关闭弹出框
+                                layer.close(index);
+
+                            }, function (index) {
+                                //取消按钮
+                            });
+
+                        } else if (res.code == 5) {
+                            layer.msg('模板说明下载失败', {icon: 5, time: 1000}, function () {
+                                //刷新本页面
+                                //location.reload();
+                            });
+                        }
+                    },
+                    error: function () {
+                        layer.msg('下载模板说明出现异常');
+                    }
+                });
+
+            }
+        });
+
+        table.on("tool(ledger-table)", function (obj) {
+            if (obj.event === "ledger-tool-edit") {
+                form.val("ledger-form", obj.data);
+                layer.open({
+                    type: 1,
+                    shade: false,
+                    content: $("#ledger-form"),
+                    area: ["60%", "80%"],
+                });
+            } else if (obj.event === "ledger-tool-del") {
+                $.ajax({
+                    url: `/api/v1/ledger/${obj.data.id}`,
+                    type: "DELETE",
+                    contentType: "application/json",
+                    headers: {
+                        "X-CSRF-TOKEN": getCookie("csrf_access_token"),
+                    },
+                    success: function (res) {
+                        if (!res.code) {
+                            table.reloadData("ledger-table");
+                            form.render($("#ledger-form"));
+                        }
+                    },
+                });
+            }
+        });
+        // 自定义IP验证规则
+
+        form.verify({
+            ip: function (value, elem) {
+                const rule = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+                if (!rule.test(value)) {
+                    return 'IP地址不符合规则';
+                }
+            }
+        });
+        form.on("submit(ledger-form-btn)", function (data) {
+            var field = data.field;
+            let method, url;
+            if (field.id == 0) {
+                field.id = null;
+                method = "POST";
+                url = "/api/v1/ledger";
+            } else {
+                method = "PUT";
+                url = `/api/v1/ledger/${field.id}`;
+            }
+            $.ajax({
+                url: url,
+                type: method,
+                contentType: "application/json",
+                headers: {
+                    "X-CSRF-TOKEN": getCookie("csrf_access_token"),
+                },
+                data: JSON.stringify(field),
+                success: function (res) {
+                    if (!res.code) {
+                        layer.closeAll();
+                        table.reloadData("ledger-table");
+                    }
+                },
+            });
+            return false;
+        });
+
+        // form_create_at
+        laydate.render({
+            elem: "#form_create_at",
+            type: "datetime",
+        });
+
+
+    });
+</script>
+</body>
+</html>

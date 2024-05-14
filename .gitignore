@@ -1,0 +1,6 @@
+.idea/
+.venv/
+*.py[cod]
+instance/
+migrations/
+.ruff_cache

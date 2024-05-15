@@ -3186,9 +3186,9 @@ hr.layui-border-red {
   font-size: 12px;
 }
 .layui-table-view .layui-table[lay-size="sm"] .layui-table-cell {
-  height: 24px;
+  height: 28px;
   line-height: 16px;
-  padding-top: 3px;
+  padding-top: 4px;
   padding-left: 5px;
   padding-right: 5px;
 }

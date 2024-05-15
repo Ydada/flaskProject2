@@ -4,6 +4,7 @@ from datetime import datetime
 from flask import Blueprint, request, make_response
 from flask_jwt_extended import current_user, jwt_required
 from flask_sqlalchemy.pagination import Pagination
+from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
 from testadmin.extensions import db
 from testadmin.orms import LedgerORM
@@ -61,23 +62,27 @@ def del_ledger(rid):
     return {"code": 0, "msg": "删除虚拟机成功"}
 
 
-@ledger_api.get("/file")
-def ledger_file():
+@ledger_api.get("/file/export")
+def export_file():
     qs = LedgerORM.query.all()
     # 创建一个新的工作簿和工作表
-    data_tuples = [(q.id,q.hostname,q.ip1,q.ip2,q.ip3,q.ip4,q.app_name,q.app_vendors,q.app_owner,q.app_dest,q.remark,q.create_at) for q in qs]
+    data_tuples = [(q.id, q.hostname, q.ip1, q.ip2, q.ip3, q.ip4, q.app_name, q.app_vendors, q.app_owner, q.app_dest,
+                    q.remark, q.create_at) for q in qs]
     print(data_tuples)
     wb = Workbook()
     ws = wb.active
     ws.title = "Data"
 
     # 写入标题行（可选）
-    ws.append(["id", "主机名", "综合网IP地址", "数据网IP地址", "存储网IP地址", "其他IP地址", "应用服务名", "厂商", "负责人", "业务内容", "备注", "创建时间"])  # 根据你的数据库模型调整列名
+    ws.append(
+        ["id", "主机名", "综合网IP地址", "数据网IP地址", "存储网IP地址", "其他IP地址", "应用服务名", "厂商", "负责人",
+         "业务内容", "备注", "创建时间"])  # 根据你的数据库模型调整列名
 
     # 遍历数据并写入工作表
     for item in data_tuples:
         print(item)
-        row_data = [item[0], item[1], item[2], item[3], item[4], item[5], item[6], item[7], item[8], item[9], item[10], item[11]]  # 假设你的模型有这些属性
+        row_data = [item[0], item[1], item[2], item[3], item[4], item[5], item[6], item[7], item[8], item[9], item[10],
+                    item[11]]  # 假设你的模型有这些属性
         ws.append(row_data)
 
         # 将工作簿保存为字节流
@@ -89,13 +94,37 @@ def ledger_file():
 
     # 设置响应头并发送文件
     response = make_response(output.read())
-    response.headers["Content-Disposition"] = "attachment; filename=data.xlsx"
+    response.headers["Content-Disposition"] = "attachment; filename=domain.xlsx"
     response.headers["Content-Type"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
     return response
 
 
-#
+@ledger_api.post("/file/import")
+def import_file():
+    # 获取文件对象
+    file = request.files['file']
+    # 获取文件名
+    filename = file.filename
+    # file.save 也可保存传来的文件
+    # file.save(f'./{filename}')
+    with open(f'./static/file/{filename}', 'wb') as f:
+        f.write(file.stream.read())
+        f.close()
+    if filename.endswith('.xlsx'):
+        wb = load_workbook(filename=f'./static/file/{filename}')
+        sheet_names = wb.sheetnames
+        sheet = wb[sheet_names[0]]
+        rows = sheet.max_row  # 获取行数
+        cols = sheet.max_column  # 获取列数
+        for i in range(1, rows):
+            for j in range(1, cols + 1):
+                cell = sheet.cell(i, j).value
+                print(cell, end=" ")
+            print()
+    return {"code": 0, "msg": "导入成功"}
+
+
 #
 # @user_api.get("/user/user_role/<int:uid>")
 # def get_user_role(uid):

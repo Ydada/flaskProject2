@@ -23,5 +23,5 @@ id,name,code,type,url,icon_sign,status,sort,open_type,pid
 124,工作空间,,menu,,layui-icon layui-icon-console,,1,,0
 125,工作台,,path,/view/console/index.html,layui-icon layui-icon-console,,2,_component,124
 126,首页,,path,/view/analysis/index.html,layui-icon layui-icon-console,,1,_component,124
-127,台账,ledger,path,,layui-icon layui-icon-console,,2,,124
+127,台账,ledger,path,,layui-icon layui-icon-console,,2,,0
 128,虚拟机,ledger_info,path,/ledger/info,layui-icon layui-icon-console,,1,,127

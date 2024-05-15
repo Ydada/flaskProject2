@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>虚拟机概况</title>
+     <script>
+      layui.config({
+        base: '/static/component/layui_exts/',
+      }).extend({
+        excel: 'excel',
+      });
+    </script>
 </head>
 <body>
 <div style="padding: 2px">
@@ -16,7 +23,35 @@
         </div>
     </div>
 </div>
-
+<form
+        class="layui-form layui-form-pane layui-btn-sm"
+        lay-filter="ledger-upload-form"
+        id="ledger-upload-form"
+        action=""
+        style="padding: 15px; display: none"
+>
+    <div class="layui-upload">
+        <button type="button" class="layui-btn layui-btn-normal" id="ID-upload-demo-files">选择多文件</button>
+        <div class="layui-upload-list">
+            <table class="layui-table">
+                <colgroup>
+                    <col style="min-width: 100px;">
+                    <col width="150">
+                    <col width="260">
+                    <col width="150">
+                </colgroup>
+                <thead>
+                <th>文件名</th>
+                <th>大小</th>
+                <th>上传进度</th>
+                <th>操作</th>
+                </thead>
+                <tbody id="ID-upload-demo-files-list"></tbody>
+            </table>
+        </div>
+        <button type="button" class="layui-btn" id="ID-upload-demo-files-action">开始上传</button>
+    </div>
+</form>
 
 <form
         class="layui-form layui-form-pane layui-btn-sm"
@@ -202,8 +237,7 @@
         <button class="layui-btn layui-btn-sm layui-btn-primary layui-border-red" lay-event="ledger-toolbar-del">
             删除
         </button>
-        <button class="layui-btn layui-btn-sm layui-btn-primary layui-border-blue" lay-on="upload-vm-page"
-                id="uploadPgb">
+        <button class="layui-btn layui-btn-sm layui-btn-primary layui-border-blue" lay-on="upload-vm-page">
             excel导入
         </button>
     </div>
@@ -226,10 +260,9 @@
 </script>
 
 <script>
-    layui.use(['table', 'layer', 'laydate', 'upload', 'jquery', 'element', 'toast'], function () {
+    layui.use(['jquery', 'excel', 'layer'],function () {
         var table = layui.table;
         var $ = layui.$;
-        var toast = layui.toast;
         var form = layui.form;
         var util = layui.util;
         var laydate = layui.laydate;
@@ -277,83 +310,6 @@
                 ],
             ],
         });
-
-        // function uploadExcel(files) {
-        //     try {
-        //         excel.importExcel(files, {
-        //             // 读取数据的同时梳理数据
-        //             fields: {
-        //                 'collection_point': 'A'
-        //                 , 'pass': 'B'
-        //                 , 'jump_out': 'C'
-        //                 , 'input': 'D'
-        //             }
-        //         }, function (data) {
-        //             // 还可以再进行数据梳理
-        //             /* data = excel.filterImportData(data, {
-        //                 'collection_point': 'A'
-        //                 , 'pass': 'B'
-        //                 , 'jump_out': 'C'
-        //                 , 'input': 'D'
-        //             */
-        //             console.log("data", data, "files", files);
-        //             layer.open({
-        //                 title: '文件转换结果',
-        //                 area: ['60%', '90%'],
-        //                 btn: ['导入', '关闭'],
-        //                 content: laytpl($('#LAY-excel-export-ans').html()).render({data: data, files: files}),
-        //                 success: function (data) {
-        //                 },
-        //                 yes: function (index, layero) {
-        //                     var sLayer = layer.load();
-        //                     // 设置文件名
-        //                     // var filenames = "";
-        //                     // for(var i=0;i<files.length;i++){
-        //                     //     if(i===0){
-        //                     //         filenames += files[i].name;
-        //                     //     }else{
-        //                     //         filenames += "，"+files[i].name;
-        //                     //     }
-        //                     // }
-        //                     // $("#filename").text(filenames);
-        //                     var flag = true;
-        //                     //批量导入
-        //                     for (var key in data) {
-        //                         var import_data = data[key];
-        //                         $.ajax({
-        //                             url: sessionStorage.getItem('httpUrlPrefix') + '/algorithm/process/execute',
-        //                             data: import_data,
-        //                             headers: {"Content-Type": "application/json;charset=utf-8"},
-        //                             async: false,
-        //                             type: 'post',
-        //                             success: function (result) {
-        //                                 console.log("success", result);
-        //                             },
-        //                             error: function (result) {
-        //                                 console.log("error", result);
-        //                                 flag = false;
-        //                             }
-        //                         });
-        //                     }
-        //                     layer.close(index);
-        //                     layer.close(index - 1);
-        //                     layer.close(sLayer);
-        //                     if (flag) {
-        //                         toast.success({
-        //                             message: '导入成功',
-        //                         });
-        //                     } else {
-        //                         layer.msg('导入失败！', {icon: 2});
-        //                     }
-        //                 },
-        //                 cancel: function (index, layero) {
-        //                 }
-        //             });
-        //         });
-        //     } catch (e) {
-        //         layer.alert(e.message);
-        //     }
-        // }
 
         table.on("toolbar(ledger-table)", function (obj) {
             if (obj.event === "ledger-toolbar-add") {
@@ -434,195 +390,86 @@
             }
         });
 
-        $("#uploadPgb").click(function () {
-            //获取下边需要使用的对象
-            var $ = layui.jquery
-                , upload = layui.upload;
-            var default_config = {
-                msg: "数据导入成功！"
+        var uploadListIns = upload.render({
+            elem: '#ID-upload-demo-files',
+            elemList: $('#ID-upload-demo-files-list'), // 列表元素对象
+            url: '/api/v1/file/import', // 实际使用时改成您自己的上传接口即可。
+            accept: 'file',
+            multiple: true,
+            number: 3,
+            auto: false,
+            bindAction: '#ID-upload-demo-files-action',
+            choose: function (obj) {
+                var that = this;
+                var files = this.files = obj.pushFile(); // 将每次选择的文件追加到文件队列
+                // 读取本地文件
+                obj.preview(function (index, file, result) {
+                    var tr = $(['<tr id="upload-' + index + '">',
+                        '<td>' + file.name + '</td>',
+                        '<td>' + (file.size / 1024).toFixed(1) + 'kb</td>',
+                        '<td><div class="layui-progress" lay-filter="progress-demo-' + index + '"><div class="layui-progress-bar" lay-percent=""></div></div></td>',
+                        '<td>',
+                        '<button class="layui-btn layui-btn-xs demo-reload layui-hide">重传</button>',
+                        '<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button>',
+                        '</td>',
+                        '</tr>'].join(''));
+
+                    // 单个重传
+                    tr.find('.demo-reload').on('click', function () {
+                        obj.upload(index, file);
+                    });
+
+                    // 删除
+                    tr.find('.demo-delete').on('click', function () {
+                        delete files[index]; // 删除对应的文件
+                        tr.remove(); // 删除表格行
+                        // 清空 input file 值，以免删除后出现同名文件不可选
+                        uploadListIns.config.elem.next()[0].value = '';
+                    });
+
+                    that.elemList.append(tr);
+                    element.render('progress'); // 渲染新加的进度条组件
+                });
+            },
+            done: function (res, index, upload) { // 成功的回调
+                var that = this;
+                // if(res.code == 0){ // 上传成功
+                var tr = that.elemList.find('tr#upload-' + index)
+                var tds = tr.children();
+                tds.eq(3).html(''); // 清空操作
+                delete this.files[index]; // 删除文件队列已经上传成功的文件
+                return;
+                //}
+                this.error(index, upload);
+            },
+            allDone: function (obj) { // 多文件上传完毕后的状态回调
+                console.log(obj)
+            },
+            error: function (index, upload) { // 错误回调
+                var that = this;
+                var tr = that.elemList.find('tr#upload-' + index);
+                var tds = tr.children();
+                // 显示重传
+                tds.eq(3).find('.demo-reload').removeClass('layui-hide');
+            },
+            progress: function (n, elem, e, index) { // 注意：index 参数为 layui 2.6.6 新增
+                element.progress('progress-demo-' + index, n + '%'); // 执行进度条。n 即为返回的进度百分比
             }
-            // $.extend( default_config, config);
-            var idRandom = "importData" + Math.ceil(Math.random() * 10000) //模板的div的随机数id
-            //创建模板（下边有个小四方框里边有个问好，不知道是啥，反正不影响，也没动他）
-            var htmlContent = '<div style="width: 80%" class="layui-upload-drag" id="' + idRandom + '">';
-            htmlContent += '<i class="layui-icon"></i>';
-            htmlContent += '<p id="test1">点击选择文件，或将文件拖拽到此处</p>';
-            htmlContent += '</div>';
-            htmlContent += '<div class="layui-upload-list ">\n' +
-                '    <table class="layui-table ">\n' +
-                '      <colgroup>\n' +
-                '        <col style="min-width: 100px;">\n' +
-                '        <col width="150">\n' +
-                '        <col width="260">\n' +
-                '      </colgroup>\n' +
-                '      <thead>\n' +
-                '        <th class="layui-font-12" >文件名</th>\n' +
-                '        <th class="layui-font-12">大小</th>\n' +
-                '        <th class="layui-font-12">上传进度</th>\n' +
-                '      </thead>\n' +
-                '      <tbody id="ID-upload-demo-files-list"></tbody>\n' +
-                '    </table>\n' +
-                '  </div>'
-            htmlContent += '<div style="text-align: center">';
-            htmlContent += '<button id="clickupload" class="layui-btn">点击上传</button>';
-            htmlContent += '</div>';
-
-            layer.open({
-                type: 1
-                , offset: "auto" //具体配置参考：http://www.layui.com/doc/modules/layer.html#offset
-                , id: 'layer_importData' //防止重复弹出
-                , title: '导入'
-                // , headers: {"authorization": access_token}
-                , content: htmlContent    //需要打开的模板
-                // , area: ['286px', '260px']
-                , area: ['300px', '400px']
-                // ,btn: ['下载模板']   //这里可以加一个下载模板的按钮，我不需要，注释了。
-                 ,align: 'c'
-                , btnAlign: 'c' //按钮居中
-                , shade: 0 //不显示遮罩
-                , yes: function () {//下载模板按钮提交
-
-                    // var iframe = $("<iframe></iframe>");
-                    // iframe.attr("src",default_config.downUrl);
-                    // iframe.css("display","none");
-                    // $("#"+idRandom).append(iframe);
-                }
-            });
-            form.render();//这个不知道嘎哈的，复制来的，也没实验去掉行不行。你们谁实验了请告诉我结果
-            //拖拽上传 注意这里这个upload要在上边layui.use中定义
-            upload.render({
-                elem: "#" + idRandom    //绑定上边定义的小弹窗
-                , url: "/api/v1/file/import"
-                , accept: 'file'   //普通文件
-                // , headers: {"authorization": token}  //我用的token，如果不是token验证的项目不用加这个
-                , auto: false       //关闭自动上传（这个如果不写，文件拽进来直接走接口，不需要点按钮，想点按钮就写个这个拒绝自动上传）
-                , bindAction: '#clickupload'   //上边选择拒绝自动上传了这个里就自己加个按钮，点击自动调用url接口
-                , minWidth: 900
-                , minHeight: 550
-                , choose: function (obj) {
-                    var t = obj.elemFile,
-                        e =
-                            (a.item || a.elem,
-                                1 < e.length
-                                    ? e.length + "\u4e2a\u6587\u4ef6"
-                                    : (e[0] || {}).name || t[0].value.match(/[^\/\\]+\..+/g) || []);
-                    t.next().hasClass(w) && t.next().remove(),
-                        n.upload(null, "choose"),
-                    n.isFile() ||
-                    a.choose ||
-                    t.after('<span class="layui-inline ' + w + '">' + e + "</span>");
-                    //     $('#test1').remove();
-                    //     var that = this;
-                    //     var files = this.files = obj.pushFile(); // 将每次选择的文件追加到文件队列
-                    //     // 读取本地文件
-                    //     obj.preview(function (index, file, result) {
-                    //         var newDiv = $('<p id="upload-' + index + '">',
-                    //             '  ' + file.name + ' ',
-                    //             ' ' + (file.size / 1024).toFixed(1) + 'kb</p>',
-                    //             '<div class="layui-progress" lay-filter="progress-demo-'+ index +'"><div class="layui-progress-bar" lay-percent=""></div></div>',
-                    //            );
-                    //
-                    //          that.$('#idRandom').append(newDiv);
-                    //         element.render('progress'); // 渲染新加的进度条组件
-                    //     });
-                }
-
-                , done: function (data) {  //调用结束返回的data
-                    if (data.code == 0) {
-                        layer.closeAll();//执行成功关闭弹窗
-                        //
-                        toast.success({
-                            message: data.msg,
-                        });
-                    } else {
-                        toast.error({
-                            message: data.msg,
-                        });
-                    }
-                }
-            });
-            return false;
         });
-        // var uploadListIns = upload.render({
-        //     elem: '#ID-upload-demo-files',
-        //     elemList: $('#ID-upload-demo-files-list'), // 列表元素对象
-        //     url: '/api/v1/file/import', // 实际使用时改成您自己的上传接口即可。
-        //     accept: 'file',
-        //     multiple: true,
-        //     number: 3,
-        //     auto: false,
-        //     bindAction: '#ID-upload-demo-files-action',
-        //     choose: function (obj) {
-        //         var that = this;
-        //         var files = this.files = obj.pushFile(); // 将每次选择的文件追加到文件队列
-        //         // 读取本地文件
-        //         obj.preview(function (index, file, result) {
-        //             var tr = $(['<tr id="upload-' + index + '">',
-        //                 '<td>' + file.name + '</td>',
-        //                 '<td>' + (file.size / 1024).toFixed(1) + 'kb</td>',
-        //                 '<td><div class="layui-progress" lay-filter="progress-demo-' + index + '"><div class="layui-progress-bar" lay-percent=""></div></div></td>',
-        //                 '<td>',
-        //                 '<button class="layui-btn layui-btn-xs demo-reload layui-hide">重传</button>',
-        //                 '<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button>',
-        //                 '</td>',
-        //                 '</tr>'].join(''));
-        //
-        //             // 单个重传
-        //             tr.find('.demo-reload').on('click', function () {
-        //                 obj.upload(index, file);
-        //             });
-        //
-        //             // 删除
-        //             tr.find('.demo-delete').on('click', function () {
-        //                 delete files[index]; // 删除对应的文件
-        //                 tr.remove(); // 删除表格行
-        //                 // 清空 input file 值，以免删除后出现同名文件不可选
-        //                 uploadListIns.config.elem.next()[0].value = '';
-        //             });
-        //
-        //             that.elemList.append(tr);
-        //             element.render('progress'); // 渲染新加的进度条组件
-        //         });
-        //     },
-        //     done: function (res, index, upload) { // 成功的回调
-        //         var that = this;
-        //         // if(res.code == 0){ // 上传成功
-        //         var tr = that.elemList.find('tr#upload-' + index)
-        //         var tds = tr.children();
-        //         tds.eq(3).html(''); // 清空操作
-        //         delete this.files[index]; // 删除文件队列已经上传成功的文件
-        //         return;
-        //         //}
-        //         this.error(index, upload);
-        //     },
-        //     allDone: function (obj) { // 多文件上传完毕后的状态回调
-        //         console.log(obj)
-        //     },
-        //     error: function (index, upload) { // 错误回调
-        //         var that = this;
-        //         var tr = that.elemList.find('tr#upload-' + index);
-        //         var tds = tr.children();
-        //         // 显示重传
-        //         tds.eq(3).find('.demo-reload').removeClass('layui-hide');
-        //     },
-        //     progress: function (n, elem, e, index) { // 注意：index 参数为 layui 2.6.6 新增
-        //         element.progress('progress-demo-' + index, n + '%'); // 执行进度条。n 即为返回的进度百分比
-        //     }
-        // });
         // 事件
-        // util.on('lay-on', {
-        //     'upload-vm-page': function () {
-        //         layer.open({
-        //             type: 1,
-        //             shade: false, // 不显示遮罩
-        //             area: ['720px', '400px'], // 宽高
-        //             content: $("#ledger-upload-form"),
-        //             end: function () {
-        //                 // layer.msg('关闭后的回调', {icon:6});
-        //             }
-        //         });
-        //     }
-        // });
+        util.on('lay-on', {
+            'upload-vm-page': function () {
+                layer.open({
+                    type: 1,
+                    shade: false, // 不显示遮罩
+                    area: ['720px', '400px'], // 宽高
+                    content: $("#ledger-upload-form"),
+                    end: function () {
+                        // layer.msg('关闭后的回调', {icon:6});
+                    }
+                });
+            }
+        });
         // 自定义IP验证规则
         form.verify({
             ip: function (value, elem) {

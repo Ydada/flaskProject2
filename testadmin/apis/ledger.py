@@ -62,7 +62,7 @@ def del_ledger(rid):
     return {"code": 0, "msg": "删除虚拟机成功"}
 
 
-@ledger_api.get("/file/export")
+@ledger_api.get("/exportfile")
 def export_file():
     qs = LedgerORM.query.all()
     # 创建一个新的工作簿和工作表
@@ -100,7 +100,7 @@ def export_file():
     return response
 
 
-@ledger_api.post("/file/import")
+@ledger_api.post("/importfile")
 def import_file():
     # 获取文件对象
     file = request.files['file']

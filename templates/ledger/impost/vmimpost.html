@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="/static/component/step-lay/step.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/component/pear/css/pear.css"/>
+    <link rel="stylesheet" href="/static/admin/css/admin.css"/>
+    <link rel="stylesheet" href="/static/admin/css/admin.dark.css"/>
+    <link rel="stylesheet" href="/static/admin/css/variables.css"/>
+    <link rel="stylesheet" href="/static/admin/css/reset.css"/>
+    <!-- 依 赖 脚 本 -->
+    <script src="/static/component/layui/layui.js"></script>
+    <script src="/static/component/step-lay/step.js"></script>
+    <script src="/static/component/pear/pear.js"></script>
+    <script src="/static/js/pear_admin_flask.js"></script>
+
+</head>
+<body>
+<div style="padding: 2px">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <form
+                    class="layui-form layui-form-pane layui-btn-sm"
+                    lay-filter="ledger-form-upload"
+                    id="ledger-form-upload"
+                    action=""
+                    style="padding: 15px; "
+            >
+                <div class="layui-fluid">
+                    <div class="layui-card">
+                        <div class="layui-card-body" style="padding-top: 40px;">
+                            <div class="layui-carousel" id="stepForm" lay-filter="stepForm" style="margin: 0 auto;">
+                                <div carousel-item>
+                                    <div>
+                                        <form class="layui-form"
+                                              style="margin: 0 auto;max-width: 460px;padding-top: 40px;">
+                                            <div class="layui-upload">
+                                                <div class="layui-upload-drag"
+                                                     style="height: 150px;display: flex;align-items: center;justify-content: center;flex-direction: column"
+                                                     id="ID-upload-demo-files">
+                                                    <i class="layui-icon layui-icon-upload"></i>
+
+                                                    <div class="layui-font-14"><br>点击上传或将文件拖拽到此处</div>
+                                                </div>
+                                                <div class="layui-upload-list">
+                                                    <table class="layui-table">
+                                                        <colgroup>
+                                                            <col style="min-width: 100px;">
+                                                            <col width="150">
+                                                            <col width="260">
+                                                            <col width="150">
+                                                        </colgroup>
+                                                        <thead>
+                                                        <th>文件名</th>
+                                                        <th>大小</th>
+                                                        <th>上传进度</th>
+                                                        <th>操作</th>
+                                                        </thead>
+                                                        <tbody id="ID-upload-demo-files-list"></tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <div class="layui-form-item">
+                                                <div style="text-align: center;margin-top: 50px;">
+                                                    <button id="formStep" type="submit"
+                                                            class="layui-btn layui-btn-disabled"
+                                                            lay-filter="formStep" lay-submit disabled>
+                                                        &emsp;下一步&emsp;
+                                                    </button>
+                                                    <button type="button"
+                                                            class="layui-btn layui-bg-orange  layui-btn-disabled"
+                                                            id="ID-upload-demo-files-action" disabled>开始上传
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div>
+                                        <table
+                                                class="layui-hide"
+                                                id="ledger-impost-table"
+                                                lay-filter="ledger-impost-table"
+                                        ></table>
+                                        <div class="layui-form-item">
+                                            <div style="text-align: center;margin-top: 50px;">
+                                                <button type="button" class="layui-btn layui-btn-primary pre">上一步
+                                                </button>
+                                                <button type="submit" class="layui-btn  layui-bg-orange"
+                                                        lay-filter="formStep2"
+                                                        lay-submit>
+                                                    确认入库
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div style="text-align: center;margin-top: 90px;">
+                                            <i class="layui-icon layui-circle"
+                                               style="color: white;font-size:30px;font-weight:bold;background: #52C41A;padding: 20px;line-height: 80px;">&#xe605;</i>
+                                            <div style="font-size: 24px;color: #333;font-weight: 500;margin-top: 30px;">
+                                                入库成功
+                                            </div>
+                                            <div style="font-size: 14px;color: #666;margin-top: 20px;">。。。。。</div>
+                                        </div>
+                                        <div style="text-align: center;margin-top: 50px;">
+                                            <button class="layui-btn next">继续导入</button>
+                                            <button class="layui-btn layui-btn-primary">查看结果</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div style="color: #666;margin-top: 5px;margin-bottom: 5px;padding-left: 30px;">
+                                <h3>说明</h3><br>
+                                <h4>入款到保险箱</h4>
+                                <p>如果需要，这里可以放一些关于产品的常见问题说明。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use(["admin", "jquery", "popup", 'table', 'toast', 'layer', 'step', 'element', 'upload'], function () {
+    })
+    var $ = layui.jquery;
+    var form = layui.form;
+    var admin = layui.admin;
+    var popup = layui.popup;
+    var table = layui.table
+    var upload = layui.upload;
+    var element = layui.element;
+    var step = layui.step;
+    var toast = layui.toast;
+    var laydate = layui.laydate;
+
+    form.render($("#ledger-form-upload"));
+    // 制作多文件上传表格
+    var uploadListIns = upload.render({
+        elem: '#ID-upload-demo-files',
+        elemList: $('#ID-upload-demo-files-list'), // 列表元素对象
+        url: '/api/v1/importfile', // 实际使用时改成您自己的上传接口即可。
+        accept: 'file',
+        multiple: true,
+        number: 3,
+        auto: false,
+        bindAction: '#ID-upload-demo-files-action',
+        choose: function (obj) {
+            var that = this;
+            var files = this.files = obj.pushFile(); // 将每次选择的文件追加到文件队列
+            // 读取本地文件
+            obj.preview(function (index, file, result) {
+                var tr = $(['<tr id="upload-' + index + '">',
+                    '<td>' + file.name + '</td>',
+                    '<td>' + (file.size / 1024).toFixed(1) + 'kb</td>',
+                    '<td><div class="layui-progress" lay-filter="progress-demo-' + index + '"><div class="layui-progress-bar" lay-percent=""></div></div></td>',
+                    '<td>',
+                    '<button class="layui-btn layui-btn-xs demo-reload layui-hide">重传</button>',
+                    '<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button>',
+                    '</td>',
+                    '</tr>'].join(''));
+
+                // 单个重传
+                tr.find('.demo-reload').on('click', function () {
+                    obj.upload(index, file);
+                });
+
+                // 删除
+                tr.find('.demo-delete').on('click', function () {
+                    delete files[index]; // 删除对应的文件
+                    tr.remove(); // 删除表格行
+                    // 清空 input file 值，以免删除后出现同名文件不可选
+                    uploadListIns.config.elem.next()[0].value = '';
+                });
+
+                that.elemList.append(tr);
+                element.render('progress'); // 渲染新加的进度条组件
+                $('#ID-upload-demo-files-action').removeClass("layui-btn-disabled").attr("disabled", false);
+            });
+        },
+        done: function (res, index, upload) { // 成功的回调
+            var that = this;
+            console.log(res)
+            // if(res.code == 0){ // 上传成功
+            var tr = that.elemList.find('tr#upload-' + index)
+            var tds = tr.children();
+            tds.eq(3).html(''); // 清空操作
+            delete this.files[index]; // 删除文件队列已经上传成功的文件
+            var resdata = res.data
+            console.log(resdata)
+
+            return;
+            this.error(index, upload);
+        },
+        allDone: function (obj) { // 多文件上传完毕后的状态回调
+            console.log(obj)
+            if (obj.failed !== undefined && obj.total === obj.successful) {
+                console.log(obj)
+                // toast.success({message: ""})
+                layer.msg('导入成功');
+                // $('#formStep').addClass("layui-btn-disabled").attr("disabled",false);
+                $('#formStep').removeClass("layui-btn-disabled").attr("disabled", false);
+            } else if (obj.total === 0) {
+                console.log(obj)
+                toast.warning({message: "请上传文件"})
+            } else {
+                console.log(obj.faile, obj.successful)
+                toast.warning({message: "上传文件意外失败"})
+            }
+        },
+        error: function (index, upload) { // 错误回调
+            var that = this;
+            var tr = that.elemList.find('tr#upload-' + index);
+            var tds = tr.children();
+            // 显示重传
+            tds.eq(3).find('.demo-reload').removeClass('layui-hide');
+        },
+        progress: function (n, elem, e, index) { // 注意：index 参数为 layui 2.6.6 新增
+            element.progress('progress-demo-' + index, n + '%'); // 执行进度条。n 即为返回的进度百分比
+        }
+    });
+
+
+    step.render({
+        elem: '#stepForm',
+        filter: 'stepForm',
+        width: '100%', //设置容器宽度
+        stepWidth: '750px',
+        height: '500px',
+        stepItems: [{
+            title: '导入虚拟机台账信息'
+        }, {
+            title: '确认入库虚拟机信息'
+        }, {
+            title: '完成'
+        }]
+    });
+    var editable = function (d) {
+        if (d.id) return 'text'; // 这里假设以 editable 字段为判断依据
+    };
+    form.on('submit(formStep)', function (data) {
+        // console.log(resdata)
+        table.render({
+            elem: "#ledger-impost-table",
+            id: "ledger-impost-table",
+            // url: "/api/v1/ledger", // 此处为静态模拟数据，实际使用时需换成真实接口
+            // {#url: "/api/v1/imposttable", // 此处为静态模拟数据，实际使用时需换成真实接口#}
+            // {#height: "full-30", // 最大高度减去其他容器已占有的高度差#}
+            size: "sm",
+            css: [
+                // 对开启了编辑的单元格追加样式
+                '.layui-table-view td[data-edit]{color: #16B777;}'
+            ].join(''),
+            even: true,
+            tools: [
+                'full',
+            ],
+            maxHeight: '320px',
+            cols: [
+                [
+                    //标题栏
+                    {type: 'checkbox', fixed: 'left', width: 40},
+                    {field: "id", title: "ID", width: 10, hide: true, fixed: 'left'},
+                    {
+                        field: "nus",
+                        title: "序号",
+                        width: 50,
+                        type: "numbers",
+                        fixed: "left",
+                        align: "center"
+                    },
+                    {
+                        field: "hostname",
+                        title: "主机名",
+                        width: 120,
+                        fixed: "left",
+                        align: "center",
+                        edit: editable
+                    },
+                    {field: "ip1", title: "综合网IP地址", width: 120, align: "center", edit: editable},
+                    {field: "ip2", title: "数据网IP地址", width: 160, align: "center", edit: editable},
+                    {field: "ip3", title: "存储网IP地址", width: 160, align: "center", edit: editable},
+                    {field: "ip4", title: "其他IP地址", width: 160, align: "center", edit: editable},
+                    {field: "app_name", title: "应用服务名", width: 160, align: "center", edit: editable},
+                    {field: "app_vendors", title: "厂商", width: 160, align: "center", edit: editable},
+                    {field: "app_owner", title: "负责人", width: 160, align: "center", edit: editable},
+                    {field: "app_dest", title: "业务内容", width: 160, align: "center", edit: editable},
+                    {field: "remark", title: "备注", width: 160, align: "center", edit: editable},
+                    {field: "create_at", title: "创建时间", width: 180, align: "center", edit: editable},
+                    {field: "right", title: "状态", width: 180, align: "center"},
+
+                ],
+            ],
+            // data: resdata,
+        });
+        step.next('#stepForm');
+        return false;
+    });
+    form.on('submit(formStep2)', function (data) {
+        console.log(table.getData('ledger-impost-table'));
+        $.ajax({
+            url: '/your-submit-url', // 提交数据的 URL
+            type: 'POST', // 提交方式
+            data: {data: JSON.stringify(table.getData('ledger-impost-table'))}, // 将数据源转换为 JSON 字符串并发送
+            dataType: 'json', // 预期服务器返回的数据类型
+            success: function (res) {
+                // 提交成功的回调函数
+                if (res.code === 0) { // 假设服务器返回 code 为 0 表示成功
+                    layer.msg('提交成功');
+                } else {
+                    layer.msg('提交失败：' + res.msg);
+                }
+            },
+            error: function (xhr, status, error) {
+                // 请求失败的回调函数
+                layer.msg('请求失败：' + error);
+            }
+        });
+        step.next('#stepForm');
+        return false;
+    });
+
+    $('.pre').click(function () {
+        console.log(this)
+        step.pre('#stepForm');
+    });
+
+    $('.next').click(function () {
+        console.log(this)
+        step.next('#stepForm');
+    });
+    form.verify({
+        ip: function (value, elem) {
+            const rule = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+            if (!rule.test(value)) {
+                return 'IP地址不符合规则';
+            }
+        }
+    });
+    // form_create_at
+    laydate.render({
+        elem: "#form_create_at",
+        type: "datetime",
+    });
+
+</script>
+</body>
+</html>

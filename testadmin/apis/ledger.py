@@ -1,4 +1,4 @@
-import io
+import io, json
 from datetime import datetime
 
 from flask import Blueprint, request, make_response
@@ -6,6 +6,8 @@ from flask_jwt_extended import current_user, jwt_required
 from flask_sqlalchemy.pagination import Pagination
 from openpyxl.reader.excel import load_workbook
 from openpyxl.workbook import Workbook
+from sqlalchemy import inspect
+
 from testadmin.extensions import db
 from testadmin.orms import LedgerORM
 
@@ -19,7 +21,7 @@ def ledger_list():
     q = db.select(LedgerORM)
 
     pages: Pagination = db.paginate(q, page=page, per_page=per_page)
-
+    print(pages)
     return {
         "code": 0,
         "msg": "获取虚拟机数据成功",
@@ -98,10 +100,14 @@ def export_file():
     response.headers["Content-Type"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
     return response
-
+def get_column_names_inspect(model):
+    mapper = inspect(model)
+    return [c.key for c in mapper.columns]
 
 @ledger_api.post("/importfile")
 def import_file():
+    # 数据组装
+    datas = []
     # 获取文件对象
     file = request.files['file']
     # 获取文件名
@@ -117,12 +123,83 @@ def import_file():
         sheet = wb[sheet_names[0]]
         rows = sheet.max_row  # 获取行数
         cols = sheet.max_column  # 获取列数
-        for i in range(1, rows):
-            for j in range(1, cols + 1):
-                cell = sheet.cell(i, j).value
-                print(cell, end=" ")
-            print()
-    return {"code": 0, "msg": "导入成功"}
+        # data = request.json  # 假设前端发送的是 JSON 数据
+        # 获取表头
+        head = get_column_names_inspect(LedgerORM)
+        print(head)
+        for row in sheet.iter_rows(min_row=2, max_row=rows + 1, values_only=True):
+            data = dict(zip(head, row))
+            datas.append(data)
+        # # 将数据列表转换为 JSON 字符串
+        # json_data = json.dumps(data, indent=4, ensure_ascii=False)
+        # 将 JSON 字符串写入文件
+        # with open('output.json', 'w', encoding='utf-8') as f:
+        #     f.write(datas)
+            # 或者打印到控制台
+        print(datas)
+        # for i in range(2, rows):
+        #     for j in range(2, cols + 1):
+        #         cell = sheet.cell(i, j).value
+        #         print(cell, end=" ")
+        #         if cell is not None:
+        #             existing_record = LedgerORM.query.filter_by(unique_field=data['unique_field']).first()
+        #             if existing_record:
+        #                 # 更新记录
+        #                 existing_record.some_field = data['some_field']  # 假设你要更新 some_field
+        #                 db.session.commit()
+        #                 return "Record updated successfully."
+        #             else:
+        #                 # 插入新记录
+        #                 new_record = LedgerORM(unique_field=data['unique_field'], some_field=data['some_field'])
+        #                 db.session.add(new_record)
+        #                 db.session.commit()
+        #                 return "New record inserted successfully."
+        #
+        #     print()
+    return {
+        "code": 0,
+        "msg": "获取虚拟机数据成功",
+        "data": datas,
+        "count": len(datas),
+    }
+
+@ledger_api.get("/getimportexcel")
+def get_import_excel():
+    # 数据组装
+    datas = []
+    # 获取文件对象
+    file = request.files['file']
+    # 获取文件名
+    filename = file.filename
+    # file.save 也可保存传来的文件
+    # file.save(f'./{filename}')
+    with open(f'./static/file/{filename}', 'wb') as f:
+        f.write(file.stream.read())
+        f.close()
+    if filename.endswith('.xlsx'):
+        wb = load_workbook(filename=f'./static/file/{filename}')
+        sheet_names = wb.sheetnames
+        sheet = wb[sheet_names[0]]
+        rows = sheet.max_row  # 获取行数
+        cols = sheet.max_column  # 获取列数
+        # 获取表头
+        head = get_column_names_inspect(LedgerORM)
+        for row in sheet.iter_rows(min_row=2, max_row=rows + 1, values_only=True):
+            data = dict(zip(head, row))
+            datas.append(data)
+    return {
+        "code": 0,
+        "msg": "获取虚拟机数据成功",
+        "data": datas,
+        "count": len(datas),
+    }
+
+
+
+
+
+
+
 
 
 #

@@ -9,10 +9,10 @@ class LedgerORM(BaseORM):
     __tablename__ = "ledger_info"
 
     id = db.Column(db.Integer, primary_key=True, comment="自增id")
-    hostname = db.Column(db.String(128), nullable=False, comment="主机名")
-    ip1 = db.Column(db.String(15), nullable=True, comment="综合网IP地址")
-    ip2 = db.Column(db.String(15), nullable=True, comment="数据网IP地址")
-    ip3 = db.Column(db.String(15), nullable=True, comment="存储网IP地址")
+    hostname = db.Column(db.String(128), nullable=True,unique=True, comment="主机名")
+    ip1 = db.Column(db.String(15), nullable=False, unique=True, comment="综合网IP地址")
+    ip2 = db.Column(db.String(15), nullable=False, unique=True,comment="数据网IP地址")
+    ip3 = db.Column(db.String(15), nullable=True, unique=True, comment="存储网IP地址")
     ip4 = db.Column(db.String(15), nullable=True, comment="其他IP地址")
     app_name = db.Column(db.String(15), nullable=True, comment="应用服务名")
     app_vendors = db.Column(db.String(15), nullable=True, comment="厂商")

@@ -8,6 +8,3 @@ def index():
     return render_template("ledger/info/index.html")
 
 
-@ledger_bp.route("/ledger/vmimpost")
-def vmimpost():
-    return render_template("ledger/impost/vmimpost.html")

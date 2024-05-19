@@ -100,9 +100,12 @@ def export_file():
     response.headers["Content-Type"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
     return response
+
+
 def get_column_names_inspect(model):
     mapper = inspect(model)
     return [c.key for c in mapper.columns]
+
 
 @ledger_api.post("/importfile")
 def import_file():
@@ -135,7 +138,7 @@ def import_file():
         # 将 JSON 字符串写入文件
         # with open('output.json', 'w', encoding='utf-8') as f:
         #     f.write(datas)
-            # 或者打印到控制台
+        # 或者打印到控制台
         print(datas)
         # for i in range(2, rows):
         #     for j in range(2, cols + 1):
@@ -162,6 +165,7 @@ def import_file():
         "data": datas,
         "count": len(datas),
     }
+
 
 @ledger_api.get("/getimportexcel")
 def get_import_excel():
@@ -193,13 +197,6 @@ def get_import_excel():
         "data": datas,
         "count": len(datas),
     }
-
-
-
-
-
-
-
 
 
 #

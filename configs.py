@@ -10,7 +10,7 @@ class BaseConfig:
     ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 
     JWT_TOKEN_LOCATION = ["headers"]
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=7)
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=5)
 
 
 class DevelopmentConfig(BaseConfig):
